@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" manifest="cache.appcache">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TopTech · Installing Cache</title>
+<style>
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: .55; }
+  }
+  @keyframes scan {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 40px; }
+  }
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: #05080c;
+    color: #b8c9d4;
+    font: 15px/1.5 "Consolas", "Courier New", monospace;
+    overflow: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+    pointer-events: none; z-index: 0;
+    background:
+      linear-gradient(rgba(0, 240, 255, .03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 240, 255, .03) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+  body::after {
+    content: "";
+    position: fixed; top: 0; right: 0; bottom: 0; left: 0;
+    pointer-events: none; z-index: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, .12) 2px,
+      rgba(0, 0, 0, .12) 4px
+    );
+    animation: scan 8s linear infinite;
+  }
+  #brand {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    background: linear-gradient(180deg, #0a1218 0%, #070d12 100%);
+    border-bottom: 1px solid #1a3a45;
+    box-shadow: 0 1px 0 rgba(0, 240, 255, .15);
+  }
+  .brand-left { display: flex; align-items: center; }
+  .brand-left img {
+    width: 30px; height: 30px; border-radius: 4px;
+    border: 1px solid #1a4a55;
+    margin-right: 10px;
+  }
+  #brand b {
+    font-size: 16px; font-weight: 700; letter-spacing: .22em;
+    text-transform: uppercase; color: #e8f7fc;
+    text-shadow: 0 0 12px rgba(0, 240, 255, .35);
+  }
+  .brand-right {
+    display: flex; align-items: center; flex-wrap: wrap;
+    font-size: 12px; letter-spacing: .04em;
+  }
+  .brand-right a {
+    color: #5eead4; text-decoration: none;
+    border-bottom: 1px solid rgba(94, 234, 212, .25);
+    margin-left: 18px;
+  }
+  .brand-right a:first-child { margin-left: 0; }
+  .brand-right a:hover { color: #a7f3d0; border-bottom-color: #5eead4; }
+  .brand-right .sep { color: #1a3a45; margin: 0 0 0 18px; }
+  #card {
+    position: absolute;
+    top: 48%; left: 50%;
+    width: 420px; max-width: 86%;
+    z-index: 1;
+    text-align: center;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+  }
+  #state {
+    font-size: 20px; font-weight: 700; margin: 0 0 16px;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: #f0d060;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  body.ok #state {
+    color: #34d399;
+    animation: none;
+  }
+  #bar {
+    height: 8px;
+    background: #0a1218;
+    border: 1px solid #1a3a45;
+    overflow: hidden;
+    text-align: left;
+  }
+  #fill {
+    height: 100%; width: 0;
+    background: linear-gradient(90deg, #0e7480, #5eead4);
+    box-shadow: 0 0 12px rgba(94, 234, 212, .45);
+  }
+  #pct {
+    margin: 12px 0 8px;
+    font-size: 13px;
+    letter-spacing: .12em;
+    color: #5eead4;
+  }
+  #hint {
+    font-size: 12px;
+    color: #4a6070;
+    letter-spacing: .04em;
+  }
+</style>
+<script>
+history.replaceState(null, null, "index.html");
+var histlength = history.length;
+history.go(-histlength);
+
+function DLProgress(e) {
+    var pct = 0;
+    if (e && e.total) pct = Math.round(e.loaded / e.total * 100);
+    var fill = document.getElementById("fill");
+    var pctEl = document.getElementById("pct");
+    var state = document.getElementById("state");
+    if (fill) fill.style.width = pct + "%";
+    if (pctEl) pctEl.textContent = pct + "%";
+    if (state) state.textContent = "installing cache";
+}
+
+function DisplayCacheProgress() {
+    var fill = document.getElementById("fill");
+    var pctEl = document.getElementById("pct");
+    var state = document.getElementById("state");
+    var hint = document.getElementById("hint");
+    document.body.className = "ok";
+    if (fill) fill.style.width = "100%";
+    if (pctEl) pctEl.textContent = "100%";
+    if (state) state.textContent = "cache ok";
+    if (hint) hint.textContent = "reloading...";
+    setTimeout(function () { location.reload(); }, 1000);
+}
+
+var ac = window.applicationCache;
+if (ac) {
+    ac.addEventListener("progress", DLProgress, false);
+    ac.oncached = function () { DisplayCacheProgress(); };
+    ac.onupdateready = function () { DisplayCacheProgress(); };
+    ac.onerror = function () {
+        var state = document.getElementById("state");
+        var hint = document.getElementById("hint");
+        if (state) state.textContent = "cache failed";
+        if (hint) hint.textContent = "reload this page to try again";
+        document.body.className = "";
+    };
+}
+</script>
+</head>
+<body>
+<div id="brand">
+  <div class="brand-left">
+    <img src="logo_raw.png" alt="" width="30" height="30"><b>TopTech</b>
+  </div>
+  <div class="brand-right">
+    <a href="tel:+963935446807">+963935446807</a>
+    <span class="sep">|</span>
+    <a href="http://www.toptech.com.sy" target="_blank" rel="noopener">www.toptech.com.sy</a>
+  </div>
+</div>
+<div id="card">
+  <div id="state">installing cache</div>
+  <div id="bar"><div id="fill"></div></div>
+  <div id="pct">0%</div>
+  <div id="hint">keep this page open until it reloads</div>
+</div>
+</body>
+</html>
